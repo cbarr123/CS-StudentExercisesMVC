@@ -118,11 +118,29 @@ namespace StudentExercisesMVC.Controllers
         // POST: Students/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(Student student)
         {
             try
             {
                 // TODO: Add insert logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = @"INSERT INTO Student (Fname, Lname, SlackHandle, CohortId)
+                                            OUTPUT INSERTED.Id
+                                            VALUES (@Fname, @Lname, @SlackHandle, @CohortId)";
+                        cmd.Parameters.Add(new SqlParameter("@Fname", student.FirstName));
+                        cmd.Parameters.Add(new SqlParameter("@Lname", student.LastName));
+                        cmd.Parameters.Add(new SqlParameter("@SlackHandle", student.SlackHandle));
+                        cmd.Parameters.Add(new SqlParameter("@CohortId", student.CohortId));
+
+                        int newId = (int)cmd.ExecuteScalar();
+                        student.Id = newId;
+                        
+                    }
+                }
 
                 return RedirectToAction(nameof(Index));
             }
@@ -200,6 +218,7 @@ namespace StudentExercisesMVC.Controllers
                         cmd.ExecuteNonQuery();
                     }
                 }
+
                         return RedirectToAction(nameof(Index));
             }
             catch
@@ -251,13 +270,24 @@ namespace StudentExercisesMVC.Controllers
         // POST: Students/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult Delete(int id, Student student)
         {
             try
             {
                 // TODO: Add delete logic here
+                using (SqlConnection conn = Connection)
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
 
-                return RedirectToAction(nameof(Index));
+                        cmd.CommandText = @"DELETE FROM StudentExercise WHERE StudentId = @Id
+                                            DELETE FROM Student WHERE Id = @Id";
+                        cmd.Parameters.Add(new SqlParameter("@Id", id));
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                        return RedirectToAction(nameof(Index));
             }
             catch
             {

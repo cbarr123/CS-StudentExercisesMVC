@@ -10,9 +10,9 @@ namespace StudentExercisesAPI.Models
     {
         public int Id { get; set; }
         [Required]
-        public string Fname { get; set; }
+        public string FirstName { get; set; }
         [Required]
-        public string Lname { get; set; }
+        public string LastName { get; set; }
         [Required]
         public string SlackHandle { get; set; }
         [Required]
