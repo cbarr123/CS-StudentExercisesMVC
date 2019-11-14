@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using StudentExercisesAPI.Models;
+using StudentExercisesMVC.Models;
 using StudentExercisesMVC.Models.ViewModels;
 
 namespace StudentExercisesMVC.Controllers
@@ -104,35 +104,25 @@ namespace StudentExercisesMVC.Controllers
         // POST: Students/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Student student)
+        public async Task<ActionResult> Create(StudentCreateViewModel model)
         {
-            try
+            using (SqlConnection conn = Connection)
             {
-                // TODO: Add insert logic here
-                using (SqlConnection conn = Connection)
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    conn.Open();
-                    using (SqlCommand cmd = conn.CreateCommand())
-                    {
-                        cmd.CommandText = @"INSERT INTO Student (Fname, Lname, SlackHandle, CohortId)
-                                            OUTPUT INSERTED.Id
-                                            VALUES (@Fname, @Lname, @SlackHandle, @CohortId)";
-                        cmd.Parameters.Add(new SqlParameter("@Fname", student.FirstName));
-                        cmd.Parameters.Add(new SqlParameter("@Lname", student.LastName));
-                        cmd.Parameters.Add(new SqlParameter("@SlackHandle", student.SlackHandle));
-                        cmd.Parameters.Add(new SqlParameter("@CohortId", student.CohortId));
+                    cmd.CommandText = @"INSERT INTO Student
+                ( FirstName, LastName, SlackHandle, CohortId )
+                VALUES
+                ( @firstName, @lastName, @slackHandle, @cohortId )";
+                    cmd.Parameters.Add(new SqlParameter("@firstName", model.Student.FirstName));
+                    cmd.Parameters.Add(new SqlParameter("@lastName", model.Student.LastName));
+                    cmd.Parameters.Add(new SqlParameter("@slackHandle", model.Student.SlackHandle));
+                    cmd.Parameters.Add(new SqlParameter("@cohortId", model.Student.CohortId));
+                    cmd.ExecuteNonQuery();
 
-                        int newId = (int)cmd.ExecuteScalar();
-                        student.Id = newId;
-                        
-                    }
+                    return RedirectToAction(nameof(Index));
                 }
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
             }
         }
 
@@ -278,6 +268,8 @@ namespace StudentExercisesMVC.Controllers
                 }
             }
         }
+
+        
 
     }
 }

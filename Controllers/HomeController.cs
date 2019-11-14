@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using StudentExercises.Models;
 using StudentExercises.Models.ViewModels;
-using StudentExercisesAPI.Models;
 using StudentExercisesMVC.Models;
 
 namespace StudentExercises.Controllers
